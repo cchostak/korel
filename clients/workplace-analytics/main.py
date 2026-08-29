@@ -10,11 +10,12 @@ using the OpenTelemetry Metrics SDK with unified corporate dimensions.
 import os
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timezone
+
 from opentelemetry import metrics
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.sdk.resources import Resource
 
 COLLECTOR_ENDPOINT = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4318")
@@ -108,7 +109,7 @@ def main():
     print(f" Collection Interval: {INTERVAL_SECONDS}s")
     print("==================================================")
 
-    provider = setup_meter_provider()
+    setup_meter_provider()
     meter = metrics.get_meter("workplace-analytics", "1.0.0")
 
     # Define Metric Instruments
@@ -204,13 +205,14 @@ def main():
                     },
                 )
 
+                now_str = datetime.now(timezone.utc).strftime("%H:%M:%S")
                 print(
-                    f"[{datetime.now().strftime('%H:%M:%S')}] Metrics Recorded | "
+                    f"[{now_str}] Metrics Recorded | "
                     f"Dept={dept['department']} | Slack={slack_count} | OpenPRs={open_prs} | "
                     f"Jira={open_jira} | DailyCost=${daily_cost}"
                 )
 
-        except Exception as ex:
+        except Exception as ex:  # noqa: BLE001
             print(f"[workplace-analytics] Error in metrics loop: {ex}")
 
         time.sleep(INTERVAL_SECONDS)

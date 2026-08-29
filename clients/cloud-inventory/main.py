@@ -13,12 +13,15 @@ import os
 import random
 import time
 from datetime import datetime, timezone
+
 import requests
 from opentelemetry._logs import LogRecord, SeverityNumber, set_logger_provider
+from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
 from opentelemetry.sdk.resources import Resource
+
+logger = logging.getLogger("cloud-inventory")
 
 # Environment configurations
 COLLECTOR_ENDPOINT = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4318")
@@ -96,7 +99,7 @@ def generate_inventory_record():
         "region": region,
         "instance_shape": shape,
         "compliance_status": compliance,
-        "encryption_enabled": True if compliance != "non_compliant" else False,
+        "encryption_enabled": compliance != "non_compliant",
         "egress_cost_monthly": egress_cost,
         "tags": {
             "team": org_mapping["service_owner"],
@@ -113,7 +116,7 @@ def generate_inventory_record():
 
 
 def setup_otel_logger():
-    """Initializes OpenTelemetry LoggerProvider and exporter."""
+    """Configure OTel LoggerProvider with OTLP HTTP Log Exporter."""
     resource = Resource.create(
         {
             "service.name": "cloud-inventory",
@@ -126,8 +129,8 @@ def setup_otel_logger():
     logs_endpoint = f"{COLLECTOR_ENDPOINT.rstrip('/')}/v1/logs"
     print(f"[cloud-inventory] Initializing OTel Log Exporter -> {logs_endpoint}")
 
-    logger_provider = LoggerProvider(resource=resource)
     exporter = OTLPLogExporter(endpoint=logs_endpoint)
+    logger_provider = LoggerProvider(resource=resource)
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
     set_logger_provider(logger_provider)
 
@@ -139,23 +142,14 @@ def setup_otel_logger():
 
 
 def push_log_record(logger_provider, payload):
-    """Pushes structured log record using OpenTelemetry LogRecord API."""
-    logger = logger_provider.get_logger("cloud-inventory")
-    severity = SeverityNumber.WARN if payload["compliance_status"] == "non_compliant" else SeverityNumber.INFO
+    """Emit structured log record through OpenTelemetry Logger Provider."""
+    otel_logger = logger_provider.get_logger("cloud-inventory-scanner", "1.0.0")
 
-    # Log record attributes
-    attributes = {
-        "org_id": payload["org_id"],
-        "environment": payload["environment"],
-        "cost_center": payload["cost_center"],
-        "service_owner": payload["service_owner"],
-        "provider": payload["provider"],
-        "resource_type": payload["resource_type"],
-        "resource_id": payload["resource_id"],
-        "region": payload["region"],
-        "compliance_status": payload["compliance_status"],
-        "egress_cost_monthly": payload["egress_cost_monthly"],
-    }
+    severity = SeverityNumber.INFO
+    if payload["compliance_status"] == "warning":
+        severity = SeverityNumber.WARN
+    elif payload["compliance_status"] == "non_compliant":
+        severity = SeverityNumber.ERROR
 
     log_record = LogRecord(
         timestamp=int(time.time() * 1e9),
@@ -166,15 +160,25 @@ def push_log_record(logger_provider, payload):
         severity_text=payload["compliance_status"].upper(),
         severity_number=severity,
         body=json.dumps(payload),
-        attributes=attributes,
+        resource=logger_provider.resource,
+        attributes={
+            "org_id": payload["org_id"],
+            "cost_center": payload["cost_center"],
+            "service_owner": payload["service_owner"],
+            "provider": payload["provider"],
+            "resource_type": payload["resource_type"],
+            "resource_id": payload["resource_id"],
+            "compliance_status": payload["compliance_status"],
+            "egress_cost_monthly": payload["egress_cost_monthly"],
+        },
     )
-    logger.emit(log_record)
+    otel_logger.emit(log_record)
 
 
 def push_direct_otlp_http(payload):
-    """Fallback / Direct OTLP JSON HTTP Push to ensure immediate ingest."""
+    """Direct OTLP JSON HTTP export for guaranteed Loki indexing."""
+    logs_url = f"{COLLECTOR_ENDPOINT.rstrip('/')}/v1/logs"
     try:
-        logs_url = f"{COLLECTOR_ENDPOINT.rstrip('/')}/v1/logs"
         otlp_payload = {
             "resourceLogs": [
                 {
@@ -214,9 +218,9 @@ def push_direct_otlp_http(payload):
         }
         resp = requests.post(logs_url, json=otlp_payload, timeout=5)
         if resp.status_code not in (200, 202):
-            logging.warning(f"Direct OTLP HTTP returned {resp.status_code}: {resp.text}")
-    except Exception as e:
-        logging.error(f"Direct OTLP push error: {e}")
+            logger.warning("Direct OTLP HTTP returned %s: %s", resp.status_code, resp.text)
+    except Exception as e:  # noqa: BLE001
+        logger.error("Direct OTLP push error: %s", e)
 
 
 def main():
@@ -236,13 +240,14 @@ def main():
                 record = generate_inventory_record()
                 push_log_record(logger_provider, record)
                 push_direct_otlp_http(record)
+                now_str = datetime.now(timezone.utc).strftime("%H:%M:%S")
                 print(
-                    f"[{datetime.now().strftime('%H:%M:%S')}] Emitted cloud asset: {record['provider']} "
+                    f"[{now_str}] Emitted cloud asset: {record['provider']} "
                     f"{record['resource_id']} ({record['resource_type']}) | "
                     f"CostCenter={record['cost_center']} | Status={record['compliance_status']}"
                 )
             logger_provider.force_flush()
-        except Exception as ex:
+        except Exception as ex:  # noqa: BLE001
             print(f"[cloud-inventory] Error in collection loop: {ex}")
 
         time.sleep(INTERVAL_SECONDS)
