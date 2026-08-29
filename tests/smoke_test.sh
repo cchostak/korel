@@ -59,6 +59,7 @@ FAILED_TESTS=0
 # Print formatted headers and log messages
 log_info()    { echo -e "${BLUE}ℹ [INFO]${NC} $*"; }
 log_success() { echo -e "${GREEN}✓ [PASS]${NC} $*"; }
+# shellcheck disable=SC2329
 log_warn()    { echo -e "${YELLOW}⚠ [WARN]${NC} $*"; }
 log_fail()    { echo -e "${RED}✗ [FAIL]${NC} $*"; }
 log_step()    { echo -e "\n${BOLD}${CYAN}==>${NC} ${BOLD}$*${NC}"; }
@@ -138,6 +139,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# shellcheck disable=SC2329
 cleanup() {
   if [ "$TEAR_DOWN" = true ]; then
     log_step "Tearing down Docker Compose test environment..."
@@ -281,6 +283,11 @@ TEMPO_READY_BODY=$(echo "$TEMPO_READY" | sed '$d')
 TEMPO_READY_CODE=$(echo "$TEMPO_READY" | tail -n1)
 assert_status "Tempo /ready returns 200" 200 "$TEMPO_READY_CODE" "$TEMPO_READY_BODY"
 assert_json_contains "Tempo reports ready status" "ready" "$TEMPO_READY_BODY"
+
+# 2.6 OTel Collector Internal Health & Metrics Check
+COLLECTOR_HEALTH=$(curl -s -w "\n%{http_code}" "http://localhost:${COLLECTOR_METRICS_PORT}/metrics")
+COLLECTOR_HEALTH_CODE=$(echo "$COLLECTOR_HEALTH" | tail -n1)
+assert_status "OTel Collector Internal GET /metrics returns 200" 200 "$COLLECTOR_HEALTH_CODE" ""
 
 # Step 3: Container Process Status
 log_step "Verifying Container Process Health..."
