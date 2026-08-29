@@ -1,0 +1,76 @@
+# ==============================================================================
+# Git Ignore — Unified Corporate Telemetry Platform
+# ==============================================================================
+
+# Environment files & secrets
+.env
+*.local
+*.secret
+*.pem
+*.key
+
+# Preserve example config
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Go
+bin/
+pkg/
+*.test
+*.prof
+coverage.out
+coverage.html
+clients/business-service/business-service
+
+# Docker & Container mounts
+data/
+storage/
+.docker/
+
+# Testing & Smoke outputs
+tests/output/
+*.log
+*.tmp
+
+# Operating System & IDE Artifacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

@@ -1,0 +1,539 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": ["corporate-telemetry"],
+      "targetBlank": false,
+      "title": "Corporate Dashboards",
+      "type": "dashboards"
+    }
+  ],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Corporate SaaS & Workplace Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 100 },
+              { "color": "yellow", "value": 500 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(corporate_slack_active_users{cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "Active Slack Users",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Slack Active Users",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 20 },
+              { "color": "red", "value": 50 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(corporate_github_open_prs{cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "Open Pull Requests",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "GitHub Open PRs",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "semi-dark-yellow", "value": 30 },
+              { "color": "red", "value": 75 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(corporate_jira_tickets_open{cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "Open Jira Tickets",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Jira Open Tickets",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 2000 },
+              { "color": "red", "value": 6000 }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(corporate_cloud_estimated_cost_daily_USD{cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "Est. Daily Cloud Spend",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Estimated Cloud Cost / Day",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 5 },
+              { "color": "yellow", "value": 20 }
+            ]
+          },
+          "unit": "reqpm"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(rate({__name__=~\"corporate_.*business_orders_total\", cost_center=~\"$cost_center\"}[1m])) * 60 or vector(0)",
+          "legendFormat": "Orders / Min",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Traced Order Velocity",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Active Users",
+            "axisPlacement": "auto",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "lineWidth": 2,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" }
+          },
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 5 },
+      "id": 5,
+      "options": {
+        "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "corporate_slack_active_users{cost_center=~\"$cost_center\"}",
+          "legendFormat": "{{department}} ({{cost_center}})",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Slack Active Users by Department & Cost Center",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "PRs / Merges",
+            "axisPlacement": "auto",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "lineWidth": 2,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" }
+          },
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 5 },
+      "id": 6,
+      "options": {
+        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "corporate_github_open_prs{cost_center=~\"$cost_center\"}",
+          "legendFormat": "Open PRs: {{repository}} ({{team}})",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "rate(corporate_github_pr_merges_total{cost_center=~\"$cost_center\"}[1m]) * 60",
+          "legendFormat": "Merges/Min: {{repository}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Engineering Velocity (GitHub PRs & Merges)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 12 },
+      "id": 200,
+      "title": "Cloud Infrastructure Inventory & Compliance Stream (Loki)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 13 },
+      "id": 7,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=\"cloud-inventory\"} | json | cost_center=~\"$cost_center\" | service_owner=~\"$service_owner\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Cloud Asset Metadata Stream (Structured Logs & Compliance Status)",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "id": 300,
+      "title": "Business Service Distributed Tracing (Tempo & Correlation)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Latency",
+            "axisPlacement": "auto",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
+      "id": 8,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate({__name__=~\"corporate_.*business_workflow_duration_seconds_bucket\", cost_center=~\"$cost_center\"}[1m])) by (le, cost_center))",
+          "legendFormat": "p95 Latency: {{cost_center}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum(rate({__name__=~\"corporate_.*business_workflow_duration_seconds_bucket\", cost_center=~\"$cost_center\"}[1m])) by (le, cost_center))",
+          "legendFormat": "p50 Latency: {{cost_center}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Business Workflow Duration Quantiles (p50 / p95)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
+      "id": 9,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=\"business-service\"} | json | cost_center=~\"$cost_center\" | service_owner=~\"$service_owner\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Business Service Correlated Logs (Trace ID Linked to Tempo)",
+      "type": "logs"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["corporate-telemetry", "opentelemetry", "cloud-inventory", "workplace", "tracing"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All", "value": ".*" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Cost Center",
+        "multi": false,
+        "name": "cost_center",
+        "options": [
+          { "selected": true, "text": "All", "value": ".*" },
+          { "selected": false, "text": "engineering-core", "value": "engineering-core" },
+          { "selected": false, "text": "payments-infra", "value": "payments-infra" },
+          { "selected": false, "text": "data-platform", "value": "data-platform" },
+          { "selected": false, "text": "security-ops", "value": "security-ops" }
+        ],
+        "query": "engineering-core,payments-infra,data-platform,security-ops",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "All", "value": ".*" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Service Owner",
+        "multi": false,
+        "name": "service_owner",
+        "options": [
+          { "selected": true, "text": "All", "value": ".*" },
+          { "selected": false, "text": "sre-team", "value": "sre-team" },
+          { "selected": false, "text": "checkout-squad", "value": "checkout-squad" },
+          { "selected": false, "text": "analytics-infra", "value": "analytics-infra" },
+          { "selected": false, "text": "sec-ops", "value": "sec-ops" }
+        ],
+        "query": "sre-team,checkout-squad,analytics-infra,sec-ops",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "corp-acme-prod", "value": "corp-acme-prod" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Org ID",
+        "multi": false,
+        "name": "org_id",
+        "options": [
+          { "selected": true, "text": "corp-acme-prod", "value": "corp-acme-prod" },
+          { "selected": false, "text": "corp-acme-staging", "value": "corp-acme-staging" }
+        ],
+        "query": "corp-acme-prod,corp-acme-staging",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "production", "value": "production" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Environment",
+        "multi": false,
+        "name": "environment",
+        "options": [
+          { "selected": true, "text": "production", "value": "production" },
+          { "selected": false, "text": "staging", "value": "staging" }
+        ],
+        "query": "production,staging",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"] },
+  "timezone": "browser",
+  "title": "Corporate Telemetry Pivot Dashboard",
+  "uid": "corporate-telemetry-pivot",
+  "version": 2
+}

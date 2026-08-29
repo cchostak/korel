@@ -1,0 +1,368 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": ["corporate-telemetry"],
+      "targetBlank": false,
+      "title": "Corporate Dashboards",
+      "type": "dashboards"
+    }
+  ],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Multi-Cloud FinOps & Asset Posture Overview",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 3000 },
+              { "color": "red", "value": 7000 }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(corporate_cloud_estimated_cost_daily_USD{cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "Total Cloud Spend / Day",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Daily Cloud Spend",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "semi-dark-orange", "value": null }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(corporate_cloud_estimated_cost_daily_USD{provider=\"aws\", cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "AWS Spend",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "AWS Daily Spend",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(corporate_cloud_estimated_cost_daily_USD{provider=\"gcp\", cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "GCP Spend",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "GCP Daily Spend",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "blue", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "count(corporate_cloud_estimated_cost_daily_USD{cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "Tracked Subsystems",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Monitored Subsystems",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 200,
+      "title": "Cloud Infrastructure Cost Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Daily Cost ($)",
+            "axisPlacement": "auto",
+            "fillOpacity": 25,
+            "gradientMode": "opacity",
+            "lineWidth": 2,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "normal" }
+          },
+          "mappings": [],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 6 },
+      "id": 5,
+      "options": {
+        "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "corporate_cloud_estimated_cost_daily_USD{cost_center=~\"$cost_center\"}",
+          "legendFormat": "{{department}} ({{provider}} - {{cost_center}})",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Stacked Daily Cloud Infrastructure Spend by Department & Provider",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "id": 6,
+      "options": {
+        "displayLabels": ["percent", "value"],
+        "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "values": ["value", "percent"] },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "tooltip": { "mode": "single", "sort": "desc" }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum by (cost_center) (corporate_cloud_estimated_cost_daily_USD{cost_center=~\"$cost_center\"})",
+          "legendFormat": "{{cost_center}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Cloud Spend Share by Cost Center",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 300,
+      "title": "Real-Time Cloud Asset Inventory & Compliance Audit Stream (Loki)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 15 },
+      "id": 7,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=\"cloud-inventory\"} | json | cost_center=~\"$cost_center\" | service_owner=~\"$service_owner\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Cloud Assets Discovered Stream (EC2, S3, RDS, GCS, Cloud SQL, BigQuery)",
+      "type": "logs"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["corporate-telemetry", "opentelemetry", "cloud-inventory", "finops", "aws", "gcp"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All", "value": ".*" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Cost Center",
+        "multi": false,
+        "name": "cost_center",
+        "options": [
+          { "selected": true, "text": "All", "value": ".*" },
+          { "selected": false, "text": "engineering-core", "value": "engineering-core" },
+          { "selected": false, "text": "payments-infra", "value": "payments-infra" },
+          { "selected": false, "text": "data-platform", "value": "data-platform" },
+          { "selected": false, "text": "security-ops", "value": "security-ops" }
+        ],
+        "query": "engineering-core,payments-infra,data-platform,security-ops",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "All", "value": ".*" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Service Owner",
+        "multi": false,
+        "name": "service_owner",
+        "options": [
+          { "selected": true, "text": "All", "value": ".*" },
+          { "selected": false, "text": "sre-team", "value": "sre-team" },
+          { "selected": false, "text": "checkout-squad", "value": "checkout-squad" },
+          { "selected": false, "text": "analytics-infra", "value": "analytics-infra" },
+          { "selected": false, "text": "sec-ops", "value": "sec-ops" }
+        ],
+        "query": "sre-team,checkout-squad,analytics-infra,sec-ops",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"] },
+  "timezone": "browser",
+  "title": "Multi-Cloud Infrastructure & Compliance Dashboard",
+  "uid": "cloud-infrastructure-inventory",
+  "version": 1
+}

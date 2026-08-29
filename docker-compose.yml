@@ -1,0 +1,160 @@
+services:
+  # ============================================================================
+  # OpenTelemetry Collector Contrib
+  # ============================================================================
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: korel-otel-collector
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./config/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "${OTEL_COLLECTOR_GRPC_PORT:-4317}:4317" # OTLP gRPC receiver
+      - "${OTEL_COLLECTOR_HTTP_PORT:-4318}:4318" # OTLP HTTP receiver
+      - "${OTEL_COLLECTOR_METRICS_PORT:-8888}:8888" # Internal Collector metrics
+      - "${OTEL_COLLECTOR_PROMETHEUS_PORT:-8889}:8889" # Prometheus metrics exporter
+    depends_on:
+      - tempo
+      - loki
+      - prometheus
+    networks:
+      - telemetry-net
+    restart: unless-stopped
+
+  # ============================================================================
+  # Grafana Tempo (Distributed Traces)
+  # ============================================================================
+  tempo:
+    image: grafana/tempo:latest
+    container_name: korel-tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./config/tempo-config.yaml:/etc/tempo.yaml:ro
+    ports:
+      - "${TEMPO_PORT:-3200}:3200" # Tempo HTTP
+    networks:
+      - telemetry-net
+    restart: unless-stopped
+
+  # ============================================================================
+  # Grafana Loki (Structured Logs & Metadata Streams)
+  # ============================================================================
+  loki:
+    image: grafana/loki:latest
+    container_name: korel-loki
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml:ro
+    ports:
+      - "${LOKI_PORT:-3100}:3100" # Loki HTTP
+    networks:
+      - telemetry-net
+    restart: unless-stopped
+
+  # ============================================================================
+  # Prometheus (Metrics TSDB)
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: korel-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus-rules.yml:/etc/prometheus/prometheus-rules.yml:ro
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090" # Prometheus UI / API
+    networks:
+      - telemetry-net
+    restart: unless-stopped
+
+  # ============================================================================
+  # Grafana (Unified Observability UI & Correlation Dashboards)
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: korel-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      - tempo
+      - loki
+      - prometheus
+    networks:
+      - telemetry-net
+    restart: unless-stopped
+
+  # ============================================================================
+  # Client 1: Cloud Inventory Telemetry Generator
+  # ============================================================================
+  client-cloud-inventory:
+    build:
+      context: ./clients/cloud-inventory
+      dockerfile: Dockerfile
+    container_name: korel-client-cloud-inventory
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - COLLECTION_INTERVAL_SECONDS=${INVENTORY_INTERVAL:-10}
+      - ORG_ID=${ORG_ID:-corp-acme-prod}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    depends_on:
+      - otel-collector
+    networks:
+      - telemetry-net
+    restart: unless-stopped
+
+  # ============================================================================
+  # Client 2: Workplace Analytics Telemetry Generator
+  # ============================================================================
+  client-workplace-analytics:
+    build:
+      context: ./clients/workplace-analytics
+      dockerfile: Dockerfile
+    container_name: korel-client-workplace-analytics
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - COLLECTION_INTERVAL_SECONDS=${WORKPLACE_INTERVAL:-10}
+      - ORG_ID=${ORG_ID:-corp-acme-prod}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    depends_on:
+      - otel-collector
+    networks:
+      - telemetry-net
+    restart: unless-stopped
+
+  # ============================================================================
+  # Client 3: Business Service (Distributed Traces & Transaction Flow)
+  # ============================================================================
+  client-business-service:
+    build:
+      context: ./clients/business-service
+      dockerfile: Dockerfile
+    container_name: korel-client-business-service
+    ports:
+      - "${BUSINESS_SERVICE_PORT:-8085}:8080"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+      - PORT=8080
+      - ORG_ID=${ORG_ID:-corp-acme-prod}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    depends_on:
+      - otel-collector
+    networks:
+      - telemetry-net
+    restart: unless-stopped
+
+networks:
+  telemetry-net:
+    driver: bridge

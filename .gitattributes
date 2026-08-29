@@ -1,0 +1,38 @@
+# ==============================================================================
+# Git Attributes — Unified Corporate Telemetry Platform
+# https://git-scm.com/docs/gitattributes
+# ==============================================================================
+
+# Auto-detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Explicitly declare text files
+*.go text diff=golang eol=lf
+*.py text diff=python eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.env.example text eol=lf
+Dockerfile* text eol=lf
+Makefile text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.tar.gz binary
+*.zip binary
+
+# GitHub Linguist Overrides & Documentation exclusions
+docs/* linguist-documentation
+*.md linguist-documentation
+catalog-info.yaml linguist-documentation
+CODEOWNERS linguist-documentation
+LICENSE linguist-documentation
+SECURITY.md linguist-documentation
+CONTRIBUTING.md linguist-documentation
+config/grafana/dashboards/*.json linguist-generated=true

@@ -1,0 +1,73 @@
+# ==============================================================================
+# Backstage Service Catalog Entity — Korel Corporate Telemetry Platform
+# https://backstage.io/docs/features/software-catalog/descriptor-format
+# ==============================================================================
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: corporate-telemetry-platform
+  title: Corporate Telemetry Platform
+  description: |
+    Enterprise-grade unified observability and correlation platform ingesting multi-cloud
+    infrastructure metadata, workplace operational SaaS metrics, and distributed business transactions
+    via OpenTelemetry, Grafana Tempo, Loki, and Prometheus.
+  labels:
+    tier: enterprise
+    platform: observability
+    compliance: soc2-type2
+  annotations:
+    backstage.io/managed-by-location: url:https://github.com/cchostak/korel/blob/main/catalog-info.yaml
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: corp/korel
+    prometheus.io/rule: prometheus.yml
+    prometheus.io/alert-rules: config/prometheus-rules.yml
+    grafana.com/slo-dashboard: d/slo-sla-error-budgets
+  tags:
+    - telemetry
+    - opentelemetry
+    - observability
+    - distributed-tracing
+    - slo
+    - sla
+    - error-budgets
+    - alerting
+    - loki
+    - tempo
+    - prometheus
+    - grafana
+    - golang
+    - python
+  links:
+    - url: http://localhost:3000/d/slo-sla-error-budgets
+      title: SLO, SLA & Error Budgets Dashboard
+      icon: dashboard
+    - url: http://localhost:3000
+      title: Grafana Observability Dashboards
+      icon: dashboard
+    - url: http://localhost:9090/alerts
+      title: Prometheus Alert Engine & Rules
+      icon: graph
+    - url: http://localhost:9090
+      title: Prometheus Metrics TSDB
+      icon: graph
+    - url: http://localhost:3200
+      title: Grafana Tempo Tracing
+      icon: search
+    - url: http://localhost:3100
+      title: Grafana Loki Logs
+      icon: catalog
+    - url: http://localhost:8085/api/health
+      title: Business Service API Health
+      icon: cloud
+spec:
+  type: service
+  lifecycle: production
+  owner: team-platform-observability
+  system: enterprise-observability
+  subcomponentOf: platform-core-infra
+  providesApis:
+    - otlp-grpc-receiver
+    - otlp-http-receiver
+    - corporate-business-api
+    - prometheus-metrics-exporter

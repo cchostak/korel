@@ -1,0 +1,382 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": ["corporate-telemetry"],
+      "targetBlank": false,
+      "title": "Corporate Dashboards",
+      "type": "dashboards"
+    }
+  ],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Business Transaction KPIs & APM Signals",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 10 },
+              { "color": "yellow", "value": 50 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum({__name__=~\"corporate_.*business_orders_total\", cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "Total Orders",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Cumulative Orders Processed",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum({__name__=~\"corporate_.*business_order_amount.*\", cost_center=~\"$cost_center\"}) or vector(0)",
+          "legendFormat": "Transaction Volume",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Transaction Volume ($)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 5 }
+            ]
+          },
+          "unit": "reqpm"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum(rate({__name__=~\"corporate_.*business_orders_total\", cost_center=~\"$cost_center\"}[1m])) * 60 or vector(0)",
+          "legendFormat": "Orders / Min",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Transaction Throughput",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.3 },
+              { "color": "red", "value": 1.0 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate({__name__=~\"corporate_.*business_workflow_duration_seconds_bucket\", cost_center=~\"$cost_center\"}[1m])) by (le)) or vector(0)",
+          "legendFormat": "p95 Latency",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "p95 Workflow Latency",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 200,
+      "title": "RED Metrics: Rate, Latency & Volume Distribution",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Latency",
+            "axisPlacement": "auto",
+            "fillOpacity": 15,
+            "lineWidth": 2,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto"
+          },
+          "mappings": [],
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 6 },
+      "id": 5,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi" }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum(rate({__name__=~\"corporate_.*business_workflow_duration_seconds_bucket\", cost_center=~\"$cost_center\"}[1m])) by (le, cost_center))",
+          "legendFormat": "p99: {{cost_center}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate({__name__=~\"corporate_.*business_workflow_duration_seconds_bucket\", cost_center=~\"$cost_center\"}[1m])) by (le, cost_center))",
+          "legendFormat": "p95: {{cost_center}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum(rate({__name__=~\"corporate_.*business_workflow_duration_seconds_bucket\", cost_center=~\"$cost_center\"}[1m])) by (le, cost_center))",
+          "legendFormat": "p50: {{cost_center}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Order Workflow Latency Quantiles (p50 / p95 / p99)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "id": 6,
+      "options": {
+        "displayLabels": ["percent", "value"],
+        "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "values": ["value", "percent"] },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum by (cost_center) ({__name__=~\"corporate_.*business_order_amount.*\", cost_center=~\"$cost_center\"})",
+          "legendFormat": "{{cost_center}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Transaction Volume Share by Cost Center",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 300,
+      "title": "Live Correlated Execution Logs (Trace ID Deep Linked to Tempo)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 15 },
+      "id": 7,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=\"business-service\"} | json | cost_center=~\"$cost_center\" | service_owner=~\"$service_owner\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Correlated Service Logs Stream (Click Trace ID to View Waterfall in Tempo)",
+      "type": "logs"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["corporate-telemetry", "opentelemetry", "tracing", "tempo", "apm", "business-service"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All", "value": ".*" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Cost Center",
+        "multi": false,
+        "name": "cost_center",
+        "options": [
+          { "selected": true, "text": "All", "value": ".*" },
+          { "selected": false, "text": "engineering-core", "value": "engineering-core" },
+          { "selected": false, "text": "payments-infra", "value": "payments-infra" },
+          { "selected": false, "text": "data-platform", "value": "data-platform" },
+          { "selected": false, "text": "security-ops", "value": "security-ops" }
+        ],
+        "query": "engineering-core,payments-infra,data-platform,security-ops",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "All", "value": ".*" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Service Owner",
+        "multi": false,
+        "name": "service_owner",
+        "options": [
+          { "selected": true, "text": "All", "value": ".*" },
+          { "selected": false, "text": "sre-team", "value": "sre-team" },
+          { "selected": false, "text": "checkout-squad", "value": "checkout-squad" },
+          { "selected": false, "text": "analytics-infra", "value": "analytics-infra" },
+          { "selected": false, "text": "sec-ops", "value": "sec-ops" }
+        ],
+        "query": "sre-team,checkout-squad,analytics-infra,sec-ops",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"] },
+  "timezone": "browser",
+  "title": "Business Transactions & Distributed Tracing APM",
+  "uid": "business-transactions-apm",
+  "version": 1
+}

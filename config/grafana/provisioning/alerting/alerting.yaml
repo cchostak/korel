@@ -1,0 +1,246 @@
+apiVersion: 1
+
+# ==============================================================================
+# Contact Points — Enterprise Alert Notification Channels
+# ==============================================================================
+contactPoints:
+  - orgId: 1
+    name: corporate-oncall-pager
+    receivers:
+      - uid: cp-oncall-webhook
+        type: webhook
+        settings:
+          url: http://localhost:8085/api/health
+          httpMethod: POST
+        disableResolveMessage: false
+
+  - orgId: 1
+    name: corporate-finops-alerts
+    receivers:
+      - uid: cp-finops-webhook
+        type: webhook
+        settings:
+          url: http://localhost:8085/api/health
+          httpMethod: POST
+        disableResolveMessage: false
+
+  - orgId: 1
+    name: corporate-sre-team
+    receivers:
+      - uid: cp-sre-webhook
+        type: webhook
+        settings:
+          url: http://localhost:8085/api/health
+          httpMethod: POST
+        disableResolveMessage: false
+
+# ==============================================================================
+# Notification Policies Routing Tree
+# ==============================================================================
+policies:
+  - orgId: 1
+    receiver: corporate-sre-team
+    groupBy:
+      - alertname
+      - severity
+      - cost_center
+    groupWait: 10s
+    groupInterval: 30s
+    repeatInterval: 4h
+    routes:
+      - receiver: corporate-oncall-pager
+        matchers:
+          - severity = critical
+        groupWait: 5s
+        groupInterval: 1m
+        repeatInterval: 15m
+        continue: true
+
+      - receiver: corporate-finops-alerts
+        matchers:
+          - category = finops
+        groupWait: 10s
+        groupInterval: 2m
+        repeatInterval: 1h
+        continue: false
+
+      - receiver: corporate-sre-team
+        matchers:
+          - category = pipeline
+        groupWait: 10s
+        groupInterval: 1m
+        repeatInterval: 30m
+        continue: false
+
+# ==============================================================================
+# Provisioned Grafana Alert Rules
+# ==============================================================================
+groups:
+  - orgId: 1
+    name: Corporate-SLO-Alerts
+    folder: Corporate Observability
+    interval: 1m
+    rules:
+      - uid: alert-slo-error-budget-burn
+        title: Business Service Error Budget Fast Burn
+        condition: C
+        data:
+          - refId: A
+            queryType: ''
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: corporate:slo:burn_rate:1h
+              instant: true
+              range: false
+              refId: A
+          - refId: B
+            queryType: ''
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 14.4
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              reducer: last
+              refId: B
+              type: reduce
+          - refId: C
+            queryType: ''
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 14.4
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: $B > 14.4
+              refId: C
+              type: math
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        labels:
+          severity: critical
+          category: slo
+          service: business-service
+        annotations:
+          summary: Business Service Error Budget Burning at Critical Rate (>14.4x)
+          description: Rapid error budget consumption detected. Estimated complete budget depletion in less than 24 hours.
+
+      - uid: alert-finops-daily-cost-breach
+        title: FinOps Daily Cloud Spend Limit Exceeded
+        condition: C
+        data:
+          - refId: A
+            queryType: ''
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: corporate:finops:total_daily_spend_usd
+              instant: true
+              range: false
+              refId: A
+          - refId: B
+            queryType: ''
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 5500
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              reducer: last
+              refId: B
+              type: reduce
+          - refId: C
+            queryType: ''
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 5500
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: $B > 5500
+              refId: C
+              type: math
+        noDataState: OK
+        execErrState: Error
+        for: 2m
+        labels:
+          severity: warning
+          category: finops
+          service: cloud-inventory
+        annotations:
+          summary: Total Daily Cloud Infrastructure Spend Above $5,500
+          description: Daily cloud cost forecast has crossed the policy threshold. Review asset utilization.

@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: 'corporate-telemetry'
+    orgId: 1
+    folder: 'Corporate Observability'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

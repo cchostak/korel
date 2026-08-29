@@ -1,0 +1,103 @@
+# ==============================================================================
+# Dependabot Configuration — Automated Dependency & Security Updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+# ==============================================================================
+
+version: 2
+updates:
+  # Monitor GitHub Actions workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:00"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+  # Monitor Dockerfiles across client generators
+  - package-ecosystem: "docker"
+    directory: "/clients/cloud-inventory"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:15"
+    commit-message:
+      prefix: "chore(docker)"
+    groups:
+      docker-images:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/clients/workplace-analytics"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:30"
+    commit-message:
+      prefix: "chore(docker)"
+    groups:
+      docker-images:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/clients/business-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:45"
+    commit-message:
+      prefix: "chore(docker)"
+    groups:
+      docker-images:
+        patterns:
+          - "*"
+
+  # Monitor Go dependencies for Business Service
+  - package-ecosystem: "gomod"
+    directory: "/clients/business-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      go-dependencies:
+        patterns:
+          - "*"
+
+  # Monitor Python dependencies for Cloud Inventory
+  - package-ecosystem: "pip"
+    directory: "/clients/cloud-inventory"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:15"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"
+
+  # Monitor Python dependencies for Workplace Analytics
+  - package-ecosystem: "pip"
+    directory: "/clients/workplace-analytics"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:30"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"

@@ -1,0 +1,97 @@
+# ==============================================================================
+# OpenTelemetry Collector Contrib Configuration
+# Unified Corporate Telemetry Platform
+# ==============================================================================
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 256
+
+  transform:
+    error_mode: ignore
+    log_statements:
+      - context: log
+        statements:
+          # If the body is a string formatted as JSON, parse it into attributes
+          - merge_maps(attributes, ParseJSON(body), "upsert") where IsString(body)
+          # Promote common corporate & inventory fields from body map if already structured
+          - set(attributes["org_id"], body["org_id"]) where body["org_id"] != nil
+          - set(attributes["cost_center"], body["cost_center"]) where body["cost_center"] != nil
+          - set(attributes["service_owner"], body["service_owner"]) where body["service_owner"] != nil
+          - set(attributes["environment"], body["environment"]) where body["environment"] != nil
+          - set(attributes["provider"], body["provider"]) where body["provider"] != nil
+          - set(attributes["resource_type"], body["resource_type"]) where body["resource_type"] != nil
+          - set(attributes["resource_id"], body["resource_id"]) where body["resource_id"] != nil
+          - set(attributes["compliance_status"], body["compliance_status"]) where body["compliance_status"] != nil
+          - set(attributes["egress_cost_monthly"], body["egress_cost_monthly"]) where body["egress_cost_monthly"] != nil
+          # Flatten nested tags if present
+          - set(attributes["tag.team"], body["tags"]["team"]) where body["tags"]["team"] != nil
+          - set(attributes["tag.project"], body["tags"]["project"]) where body["tags"]["project"] != nil
+          - set(attributes["tag.data_classification"], body["tags"]["data_classification"]) where body["tags"]["data_classification"] != nil
+
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: production
+        action: insert
+      - key: cluster
+        value: corp-central-01
+        action: insert
+
+exporters:
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: corporate
+    send_timestamps: true
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  debug:
+    verbosity: detailed
+
+service:
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: 0.0.0.0
+                port: 8888
+
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [otlp/tempo, debug]
+
+    logs:
+      receivers: [otlp]
+      processors: [transform, batch, resource]
+      exporters: [otlphttp/loki, debug]
+
+    metrics:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [prometheus, debug]

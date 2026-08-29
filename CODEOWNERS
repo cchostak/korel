@@ -1,0 +1,26 @@
+# ==============================================================================
+# Code Owners — Korel Corporate Telemetry Platform
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# ==============================================================================
+
+# Global Default Ownership
+*                                   @corp/platform-observability-leads @corp/sre-team
+
+# Telemetry Generator Clients
+/clients/cloud-inventory/           @corp/cloud-infra-team @corp/sre-team
+/clients/workplace-analytics/       @corp/data-platform-team @corp/analytics-infra
+/clients/business-service/          @corp/backend-core-team @corp/checkout-squad
+
+# OpenTelemetry & Storage Engine Configurations
+/config/                            @corp/sre-team @corp/platform-observability-leads
+/config/grafana/                    @corp/sre-team @corp/platform-observability-leads
+
+# CI/CD, Workflows & Governance
+/.github/                           @corp/sec-ops @corp/platform-observability-leads
+/.pre-commit-config.yaml            @corp/platform-observability-leads
+/CODEOWNERS                         @corp/platform-observability-leads
+/SECURITY.md                        @corp/sec-ops
+
+# Architecture & Product Documentation
+/docs/                              @corp/platform-observability-leads
+/README.md                          @corp/platform-observability-leads

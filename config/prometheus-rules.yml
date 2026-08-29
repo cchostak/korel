@@ -1,0 +1,262 @@
+# ==============================================================================
+# Prometheus Recording & Alerting Rules — Korel Corporate Telemetry
+# Service Level Objectives (SLOs), Service Level Agreements (SLAs) & Error Budgets
+# ==============================================================================
+
+groups:
+  # ----------------------------------------------------------------------------
+  # 1. SLO Recording Rules — Availability, Error Budgets & Latency
+  # ----------------------------------------------------------------------------
+  - name: corporate_slo_recording_rules
+    interval: 15s
+    rules:
+      # Transaction Volume Total & Success Ratio (5m window)
+      - record: corporate:slo:availability_ratio:5m
+        expr: |
+          (
+            sum(rate(corporate_business_orders_total{status="success"}[5m]))
+            /
+            (sum(rate(corporate_business_orders_total[5m])) > 0)
+          ) or vector(1.0)
+
+      # Availability Ratio (1h window)
+      - record: corporate:slo:availability_ratio:1h
+        expr: |
+          (
+            sum(rate(corporate_business_orders_total{status="success"}[1h]))
+            /
+            (sum(rate(corporate_business_orders_total[1h])) > 0)
+          ) or (
+            sum(rate(corporate_business_orders_total{status="success"}[5m]))
+            /
+            (sum(rate(corporate_business_orders_total[5m])) > 0)
+          ) or vector(1.0)
+
+      # Availability Ratio (6h window)
+      - record: corporate:slo:availability_ratio:6h
+        expr: |
+          (
+            sum(rate(corporate_business_orders_total{status="success"}[6h]))
+            /
+            (sum(rate(corporate_business_orders_total[6h])) > 0)
+          ) or (
+            sum(rate(corporate_business_orders_total{status="success"}[5m]))
+            /
+            (sum(rate(corporate_business_orders_total[5m])) > 0)
+          ) or vector(1.0)
+
+      # Availability Ratio (1d window)
+      - record: corporate:slo:availability_ratio:1d
+        expr: |
+          (
+            sum(rate(corporate_business_orders_total{status="success"}[1d]))
+            /
+            (sum(rate(corporate_business_orders_total[1d])) > 0)
+          ) or (
+            sum(rate(corporate_business_orders_total{status="success"}[5m]))
+            /
+            (sum(rate(corporate_business_orders_total[5m])) > 0)
+          ) or vector(1.0)
+
+      # Availability Ratio (7d window)
+      - record: corporate:slo:availability_ratio:7d
+        expr: |
+          (
+            sum(rate(corporate_business_orders_total{status="success"}[7d]))
+            /
+            (sum(rate(corporate_business_orders_total[7d])) > 0)
+          ) or (
+            sum(rate(corporate_business_orders_total{status="success"}[5m]))
+            /
+            (sum(rate(corporate_business_orders_total[5m])) > 0)
+          ) or vector(1.0)
+
+      # Availability Percentage (1h window)
+      - record: corporate:slo:availability_percent:1h
+        expr: corporate:slo:availability_ratio:1h * 100
+
+      # Availability Percentage (7d window)
+      - record: corporate:slo:availability_percent:7d
+        expr: corporate:slo:availability_ratio:7d * 100
+
+      # Remaining Error Budget % for 99.9% Availability Target (7-day window)
+      # Total allowed failure rate = (1 - 0.999) = 0.001 (0.1%)
+      # Remaining Budget % = clamp_min(clamp_max((availability_ratio - 0.999) / 0.001 * 100, 100), 0)
+      - record: corporate:slo:error_budget_remaining:7d
+        expr: |
+          clamp_min(
+            clamp_max(
+              (corporate:slo:availability_ratio:7d - 0.999) / 0.001 * 100,
+              100
+            ),
+            0
+          )
+
+      # Remaining Error Budget % for 99.9% Availability Target (30-day window)
+      - record: corporate:slo:error_budget_remaining:30d
+        expr: |
+          clamp_min(
+            clamp_max(
+              (corporate:slo:availability_ratio:7d - 0.999) / 0.001 * 100,
+              100
+            ),
+            0
+          )
+
+      # Error Burn Rate (1h window) — Multiplier over allowed error rate (0.001)
+      - record: corporate:slo:burn_rate:1h
+        expr: |
+          (1 - corporate:slo:availability_ratio:1h) / 0.001
+
+      # Error Burn Rate (6h window) — Multiplier over allowed error rate (0.001)
+      - record: corporate:slo:burn_rate:6h
+        expr: |
+          (1 - corporate:slo:availability_ratio:6h) / 0.001
+
+      # Latency SLO Compliance (% of requests <= 250ms target)
+      - record: corporate:slo:latency_compliance_percent:1h
+        expr: |
+          (
+            (
+              sum(rate(corporate_business_workflow_duration_seconds_bucket{le="0.25"}[1h]))
+              /
+              (sum(rate(corporate_business_workflow_duration_seconds_count[1h])) > 0)
+            ) or (
+              sum(rate(corporate_business_workflow_duration_seconds_bucket{le="0.25"}[5m]))
+              /
+              (sum(rate(corporate_business_workflow_duration_seconds_count[5m])) > 0)
+            ) or vector(1.0)
+          ) * 100
+
+      # Total Daily Cloud Spend
+      - record: corporate:finops:total_daily_spend_usd
+        expr: sum(corporate_cloud_estimated_cost_daily_USD) or vector(0)
+
+      # Workplace Engineering WIP Ratio
+      - record: corporate:workplace:wip_ratio
+        expr: |
+          sum(corporate_jira_tickets_open) / (sum(corporate_slack_active_users) > 0)
+
+  # ----------------------------------------------------------------------------
+  # 2. Alerting Rules — Multi-Window Multi-Burn-Rate & Platform Anomalies
+  # ----------------------------------------------------------------------------
+  - name: corporate_alerting_rules
+    interval: 15s
+    rules:
+      # --- Availability SLO Alerts (Google SRE Multi-Burn-Rate) ---
+      - alert: BusinessServiceAvailabilityFastBurn
+        expr: corporate:slo:burn_rate:1h > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          tier: tier-1
+          category: slo
+          service: business-service
+          team: checkout-squad
+        annotations:
+          summary: "Critical Error Budget Fast Burn on Business Service"
+          description: "Business service is consuming error budget at 14.4x rate over the past hour (1-hour burn rate: {{ $value }}x). 2% of budget burned in 1h."
+          runbook_url: "https://docs.corp.internal/runbooks/slo-availability-breach"
+
+      - alert: BusinessServiceAvailabilitySlowBurn
+        expr: corporate:slo:burn_rate:6h > 6.0
+        for: 15m
+        labels:
+          severity: warning
+          tier: tier-1
+          category: slo
+          service: business-service
+          team: checkout-squad
+        annotations:
+          summary: "Elevated Error Budget Slow Burn on Business Service"
+          description: "Business service is consuming error budget at 6x rate over the past 6 hours (6-hour burn rate: {{ $value }}x). 5% of budget burned in 6h."
+          runbook_url: "https://docs.corp.internal/runbooks/slo-availability-breach"
+
+      # --- Latency SLO Alerts ---
+      - alert: BusinessServiceLatencySLOBreach
+        expr: |
+          histogram_quantile(0.95, sum(rate(corporate_business_workflow_duration_seconds_bucket[5m])) by (le)) > 0.35
+        for: 3m
+        labels:
+          severity: warning
+          tier: tier-1
+          category: slo
+          service: business-service
+          team: checkout-squad
+        annotations:
+          summary: "Business Workflow p95 Latency SLO Target Breached"
+          description: "95th percentile transaction latency is {{ $value | humanizeDuration }}, exceeding the 350ms target threshold."
+          runbook_url: "https://docs.corp.internal/runbooks/latency-degradation"
+
+      # --- FinOps & Cloud Cost SLA Alerts ---
+      - alert: CloudCostFinOpsBudgetWarning
+        expr: corporate:finops:total_daily_spend_usd > 5500
+        for: 5m
+        labels:
+          severity: warning
+          tier: tier-2
+          category: finops
+          service: cloud-inventory
+          team: sre-team
+        annotations:
+          summary: "Daily Cloud Infrastructure Spend Approaching Budget Cap"
+          description: "Estimated total daily cloud spend is currently ${{ $value | humanize }}, exceeding the warning threshold of $5,500/day."
+          runbook_url: "https://docs.corp.internal/runbooks/finops-cloud-spend"
+
+      - alert: CloudCostFinOpsBudgetCritical
+        expr: corporate:finops:total_daily_spend_usd > 6500
+        for: 5m
+        labels:
+          severity: critical
+          tier: tier-2
+          category: finops
+          service: cloud-inventory
+          team: sre-team
+        annotations:
+          summary: "CRITICAL: Daily Cloud Spend Exceeds Hard Budget Cap"
+          description: "Estimated daily cloud spend has reached ${{ $value | humanize }}, breaching the maximum $6,500/day hard budget limit."
+          runbook_url: "https://docs.corp.internal/runbooks/finops-cloud-spend"
+
+      # --- Telemetry Pipeline Health Alerts ---
+      - alert: OTelCollectorMemoryThresholdHigh
+        expr: otelcol_process_memory_rss > 600 * 1024 * 1024
+        for: 3m
+        labels:
+          severity: warning
+          tier: tier-1
+          category: pipeline
+          service: otel-collector
+          team: sre-team
+        annotations:
+          summary: "OpenTelemetry Collector Resident Memory RSS High"
+          description: "OTel Collector process RSS memory is currently {{ $value | humanize1024 }}B, exceeding 600MB."
+          runbook_url: "https://docs.corp.internal/runbooks/collector-memory-spike"
+
+      - alert: OTelCollectorSpansDropped
+        expr: rate(otelcol_receiver_refused_spans[1m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          tier: tier-1
+          category: pipeline
+          service: otel-collector
+          team: sre-team
+        annotations:
+          summary: "OTel Collector Refusing / Dropping Ingested Spans"
+          description: "Collector is actively refusing spans at rate {{ $value }}/s."
+          runbook_url: "https://docs.corp.internal/runbooks/collector-pipeline-drops"
+
+      # --- Workplace & Velocity Delivery SLAs ---
+      - alert: WorkplaceUrgentTicketBacklogOverload
+        expr: sum(corporate_jira_tickets_open{priority="urgent"}) > 35
+        for: 10m
+        labels:
+          severity: warning
+          tier: tier-3
+          category: workplace
+          service: workplace-analytics
+          team: sre-team
+        annotations:
+          summary: "High Urgent Jira Ticket Backlog Volume"
+          description: "Total urgent priority open tickets across engineering is {{ $value }}, exceeding the SLA threshold of 35."
+          runbook_url: "https://docs.corp.internal/runbooks/workplace-backlog"
