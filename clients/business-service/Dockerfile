@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.27-alpine AS builder
 
 WORKDIR /build
 
@@ -10,7 +10,7 @@ RUN go mod download
 COPY main.go .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/business-service main.go
 
-FROM alpine:3.20
+FROM alpine:3.24
 
 WORKDIR /app
 RUN apk add --no-cache ca-certificates curl
