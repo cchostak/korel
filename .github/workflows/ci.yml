@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: '1.22'
           cache-dependency-path: clients/business-service/go.sum
@@ -36,7 +36,7 @@ jobs:
           go vet ./...
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -57,19 +57,19 @@ jobs:
           scandir: './tests'
 
       - name: Hadolint Cloud Inventory Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: 'clients/cloud-inventory/Dockerfile'
           failure-threshold: error
 
       - name: Hadolint Workplace Analytics Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: 'clients/workplace-analytics/Dockerfile'
           failure-threshold: error
 
       - name: Hadolint Business Service Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: 'clients/business-service/Dockerfile'
           failure-threshold: error
@@ -79,10 +79,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: '1.22'
           cache-dependency-path: clients/business-service/go.sum
@@ -93,7 +93,7 @@ jobs:
           go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -105,7 +105,7 @@ jobs:
           python -m unittest discover -s tests/unit -p "test_*.py" -v
 
       - name: Upload Test Coverage Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: go-coverage-report
           path: clients/business-service/coverage.out
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Validate Docker Compose Configuration
         run: |
@@ -127,7 +127,7 @@ jobs:
         uses: actions/setup-buildx-action@v3
 
       - name: Build Cloud Inventory Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./clients/cloud-inventory
           file: ./clients/cloud-inventory/Dockerfile
@@ -135,7 +135,7 @@ jobs:
           tags: korel/client-cloud-inventory:ci-test
 
       - name: Build Workplace Analytics Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./clients/workplace-analytics
           file: ./clients/workplace-analytics/Dockerfile
@@ -143,7 +143,7 @@ jobs:
           tags: korel/client-workplace-analytics:ci-test
 
       - name: Build Business Service Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./clients/business-service
           file: ./clients/business-service/Dockerfile
@@ -156,7 +156,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup environment file
         run: cp .env.example .env
